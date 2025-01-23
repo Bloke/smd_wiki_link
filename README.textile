@@ -22,4 +22,4 @@ The following fields will be automatically populated for you *if* you are using 
 
 At this point you can write the rest of the article, Publish it and your original link will then work on your live site.
 
-The smd_wiki_link tag accepts a @text@ attribute to custommise the anchor text link. It defaults to 'Create article'. You may also use a @form@ or provide some container content to populate the anchor text.
+The smd_wiki_link tag accepts a @text@ attribute to customise the anchor text link. It defaults to 'Create article'. You may also use a @form@ or provide some container content to populate the anchor text.

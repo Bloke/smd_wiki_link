@@ -1,0 +1,11 @@
+{
+  "name": "smd_wiki_link",
+  "description": "Create Textpattern articles from 404s",
+  "version": "0.1.0",
+  "type": 1,
+  "author": "Stef Dawson",
+  "author_uri": "https://stefdawson.com/",
+  "order": 5,
+  "flags": 0,
+  "help": {"file" : ["./README.textile"]}
+}

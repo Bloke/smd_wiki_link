@@ -1,0 +1,16 @@
+{
+  "name": "bloke/smd_wiki_link",
+  "description": "Create Textpattern articles from 404s",
+  "keywords": ["textpattern", "plugin", "article", "create", "links", "404", "DocuWiki", "wiki"],
+  "homepage": "https://github.com/bloke/smd_wiki_link",
+  "license": "LGPL-2.1",
+  "type": "textpattern-plugin",
+  "support": {
+    "issues": "https://github.com/bloke/smd_wiki_link/issues",
+    "source": "https://github.com/bloke/smd_wiki_link"
+  },
+  "require": {
+    "textpattern/lock": ">=4.8.0",
+    "textpattern/installer": "*"
+  }
+}

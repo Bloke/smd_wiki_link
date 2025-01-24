@@ -14,11 +14,11 @@ bc. <txp:if_logged_in>
 Step 2
 Now, when you're creating articles, if you make an anchor link to an article that doesn't yet exist, you can click it. This will trigger your 404 page template, which will then be intercepted by the plugin when you're logged in and offer a link directly to the Write panel to create it.
 
-The following fields will be automatically populated for you *if* you are using the /section/title URL scheme:
+The following fields will be automatically populated for you if you are using one of the compatible URL schemes:
 
 * The url_title will be used as-is (after being sanitized) so be sure to restrict the link to alphanumeric characters and underscore/hyphen to avoid broken links.
 * The Title will be constructed by converting the url_title into distinct words at hyphen/underscore and then convert each word to Title Case.
-* The Section will be selected based on the section in which the destination link you clicked on is going to live.
+* The Section will be selected based on the section in which the destination link you clicked on is going to reside. If the plugin cannot detect the section, it will use the default section.
 
 At this point you can write the rest of the article, Publish it and your original link will then work on your live site.
 

@@ -73,12 +73,16 @@ if (class_exists('\Textpattern\Tag\Registry')) {
  * Use inside a 404 page template.
  * Only supports /section/title permlink modes at present.
  *
+ * Thanks to Oleg for the permlink matching concept.
+ *
  * @param  string $atts  Tag attributes
  * @param  string $thing Tag contained content
  * @return string        HTML
  */
 function smd_wiki_link($atts, $thing = null)
 {
+    global $pretext, $txp_sections;
+
     extract(lAtts(array(
         'form' => '',
         'text' => 'Create article',
@@ -86,10 +90,40 @@ function smd_wiki_link($atts, $thing = null)
 
     $out = '';
     $text = $form ? parse_form($form) : ($thing ? parse($thing) : $text);
+    $now = time();
 
-    $url_title = parse('<page::url type="2" />');
+    $detected_section = '';
+    $page_url = trim($pretext['req'], '/');
+    $url_title = $pretext[$pretext[0]];
+    $id = 0; // Used to defeat cache
+
+    foreach ($txp_sections as $section => $data) {
+        $urlid = 0;
+
+        // Can only detect these permlink schemes + /section/title reliably.
+        // Anything with category, breadcrumb or ?messy is ignored.
+        if ($data['permlink_mode'] === 'year_month_day_title' && $pretext[0] === 4) {
+            $now = safe_strtotime($pretext[1].'/'.$pretext[2].'/'.$pretext[3]);
+        } elseif ($data['permlink_mode'] === 'section_id_title' && $pretext[0] === 3) {
+            $urlid = intval($pretext[2]);
+        } elseif ($data['permlink_mode'] === 'id_title' && $pretext[0] === 2) {
+            $urlid = intval($pretext[1]);
+        }
+
+        $article_array = array('section' => $section, 'uposted' => $now, 'url_title' => $url_title, 'id' => $urlid ? $urlid : --$id);
+        $url = permlinkurl($article_array, '');
+
+        // First match might be wrong, but nothing we can do about it.
+        if (trim($url, '/') == $page_url) {
+            $detected_section = $section;
+            break;
+        }
+    }
+
+    $match_section = ($detected_section) ? '&Section='.txpspecialchars($detected_section) : '';
     $safe_url_title = sanitizeForUrl($url_title);
-    $anchor = parse('<page::url type="admin_root" />?event=article&smd_wiki=true&Section=<page::url type="1" />&url_title=' . $safe_url_title . '&Title=<page::url type="2" trim="/[\_|\-]/" replace=" " escape="title" />');
+    $escaped_title = txp_escape('title', str_replace(array('-', '_'), ' ', $url_title));
+    $anchor = ahu . '?event=article&smd_wiki=true' . $match_section . '&url_title=' . $safe_url_title . '&Title=' . $escaped_title;
 
     if (class_exists('\Textpattern\UI\Anchor')) {
         $out = \Txp::get('\Textpattern\UI\Anchor', $text, $anchor);
@@ -117,7 +151,9 @@ document.addEventListener("DOMContentLoaded", function() {
     let secFld = document.getElementById('section');
     urlFld.value = '{$url_title}';
     ttlFld.value = '{$Title}';
-    secFld.value = '{$Section}';
+    if ('{$Section}' !== '') {
+        secFld.value = '{$Section}';
+    }
 });
 EOJS
             );
@@ -145,11 +181,11 @@ bc. <txp:if_logged_in>
 Step 2
 Now, when you're creating articles, if you make an anchor link to an article that doesn't yet exist, you can click it. This will trigger your 404 page template, which will then be intercepted by the plugin when you're logged in and offer a link directly to the Write panel to create it.
 
-The following fields will be automatically populated for you *if* you are using the /section/title URL scheme:
+The following fields will be automatically populated for you if you are using one of the compatible URL schemes:
 
 * The url_title will be used as-is (after being sanitized) so be sure to restrict the link to alphanumeric characters and underscore/hyphen to avoid broken links.
 * The Title will be constructed by converting the url_title into distinct words at hyphen/underscore and then convert each word to Title Case.
-* The Section will be selected based on the section in which the destination link you clicked on is going to live.
+* The Section will be selected based on the section in which the destination link you clicked on is going to reside. If the plugin cannot detect the section, it will use the default section.
 
 At this point you can write the rest of the article, Publish it and your original link will then work on your live site.
 
